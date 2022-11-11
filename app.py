@@ -15,13 +15,18 @@ cors = CORS(app, resources={r'/api/*': {'origins': '*'}})
 # Variables
 f = 9
 K_MAX = 5
-ANNOY = AnnoyIndex(f, 'hamming')
+ANNOY_ONEHOT = AnnoyIndex(f, 'hamming')
+ANNOY_PERCENTAGE = AnnoyIndex(f, 'angular')
+ANNOY = None
 SUB_TO_IDX = {}
 IDX_TO_SUB = {}
 
 
 @app.route("/api/v1/subject-list", methods=['GET'])
 def subject_list():
+    '''
+    Returns the list of all the subjects in database
+    '''
     subjects = SUB_TO_IDX.keys()
     return jsonify({'subjects': list(subjects)})
 
@@ -42,21 +47,29 @@ def parse_args(data):
         ids = [SUB_TO_IDX[subject] for subject in subjects]
         k = data['k'] if 'k' in data.keys() else 3
         electives = data['electives'] if 'k' in data.keys() else [1]
+        type = data['type'] if 'type' in data.keys() else 2
     except KeyError:
         return {"error": "Sorry given subject is not in database"}
-    return {'ids': ids, 'k': min(k, K_MAX), 'electives': electives}
+    return {'ids': ids, 'k': min(k, K_MAX), 'electives': electives, 'type': type}
 
 
 def recommendation_electivewise(args):
     ids, electives, k = args['ids'], args['electives'], args['k']
     res = []
     for elective in electives:
-        d = { "elective_{}".format(elective): electivedwise_generation(elective, ids, k) }
+        d = { 
+            "elective_{}".format(elective): electivedwise_generation(elective, ids, k, args['type']) 
+        }
         res.append(d)
     return res
 
 
-def electivedwise_generation(elective_id, ids, k):
+def electivedwise_generation(elective_id, ids, k, type=2):
+    global ANNOY
+    if type==1:
+        ANNOY = ANNOY_ONEHOT
+    elif type==2:
+        ANNOY = ANNOY_PERCENTAGE
     subs = load_elective(elective_id)
     dists = []
     for idx in ids:
@@ -73,10 +86,11 @@ def load_variables():
     '''
     global SUB_TO_IDX, IDX_TO_SUB
     # Common Path to all variables
-    mid_path = [os.curdir, 'model', 'KNB_MODEL', 'ONE_HOT']
+    for ann, t in zip([ANNOY_ONEHOT, ANNOY_PERCENTAGE], ['ONE_HOT', 'PERCENTAGE']):
+        mid_path = [os.curdir, 'model', 'KNB_MODEL', t]
 
-    print("LOADING ANNOY...")
-    ANNOY.load(os.path.join('', *(mid_path + ['tree.ann'])))
+        print("LOADING ANNOY...")
+        ann.load(os.path.join('', *(mid_path + ['tree.ann'])))
 
     print("LOADING SUBJECT-TO-INDEX MAP...")
     with open(os.path.join('', *(mid_path + ['subject2idx.pkl'])), 'rb') as f:

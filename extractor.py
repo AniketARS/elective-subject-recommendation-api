@@ -12,7 +12,7 @@ def make_np(df):
 
 
 def load_to_tree(data, f, path):
-  t = AnnoyIndex(f, 'hamming')
+  t = AnnoyIndex(f, 'angular')
   for i in range(len(data)):
     t.add_item(i, data[i])
   t.build(10)
@@ -42,8 +42,8 @@ def extract_everything(df_path, tree_path, s2i_path, i2s_path):
 
 if __name__ == '__main__':
   extract_everything(
-    os.path.join(os.curdir, 'dataset', 'KNB_ONEHOT.csv'),
-    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'ONE_HOT', 'tree.ann'),
-    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'ONE_HOT', 'subject2idx.pkl'),
-    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'ONE_HOT', 'idx2subject.pkl'),
+    os.path.join(os.curdir, 'dataset', 'KNB_PERCENTAGE.csv'),
+    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'PERCENTAGE', 'tree.ann'),
+    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'PERCENTAGE', 'subject2idx.pkl'),
+    os.path.join(os.curdir, 'model', 'KNB_MODEL', 'PERCENTAGE', 'idx2subject.pkl'),
   )
