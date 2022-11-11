@@ -41,9 +41,10 @@ def parse_args(data):
     try:
         ids = [SUB_TO_IDX[subject] for subject in subjects]
         k = data['k'] if 'k' in data.keys() else 3
+        electives = data['electives'] if 'k' in data.keys() else [1]
     except KeyError:
         return {"error": "Sorry given subject is not in database"}
-    return {'ids': ids, 'k': min(k, K_MAX), 'electives': [1, 2]}
+    return {'ids': ids, 'k': min(k, K_MAX), 'electives': electives}
 
 
 def recommendation_electivewise(args):
