@@ -12,7 +12,7 @@ def make_np(df):
 
 
 def load_to_tree(data, f, path):
-  t = AnnoyIndex(f, 'angular')
+  t = AnnoyIndex(f, 'hamming')
   for i in range(len(data)):
     t.add_item(i, data[i])
   t.build(10)
