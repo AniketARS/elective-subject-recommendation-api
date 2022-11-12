@@ -10,9 +10,11 @@ Recommendation Systems are an ongoing research that is applied in various domain
 
 > 3. `cd <repo_name>`
 
-> 4. `pip install -r requirements.txt`
+> 4. `python -m venv .env`
 
-> 5. `python app.py`
+> 5. `pip install -r requirements.txt`
+
+> 6. `python app.py`
 
 <br>
 
